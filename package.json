@@ -4,7 +4,7 @@
   "description": "PaketHane Kurye Takip Sistemi - Maksimum Güvenlikli Backend",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "npx prisma migrate deploy && node server.js",
     "dev": "nodemon server.js",
     "build": "npx prisma generate --schema=./prisma/schema.prisma",
     "migrate": "npx prisma migrate deploy --schema=./prisma/schema.prisma",
