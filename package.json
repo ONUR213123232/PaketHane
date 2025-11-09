@@ -1,0 +1,35 @@
+{
+  "name": "pakethane-backend",
+  "version": "1.0.0",
+  "description": "PaketHane Kurye Takip Sistemi - Maksimum Güvenlikli Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "npx prisma generate",
+    "migrate": "npx prisma migrate deploy",
+    "studio": "npx prisma studio",
+    "seed": "node seed.js"
+  },
+  "keywords": ["kurye", "takip", "gps", "tracking", "secure"],
+  "author": "PaketHane",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "prisma": "^5.7.0",
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.6.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "morgan": "^1.10.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
