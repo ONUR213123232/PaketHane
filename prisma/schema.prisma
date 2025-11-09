@@ -1,0 +1,127 @@
+// PaketHane - Kurye Takip Sistemi
+// Prisma Schema - Neon PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========== KULLANICILAR ==========
+model User {
+  id            String      @id @default(cuid())
+  email         String      @unique
+  password      String      // bcrypt hash
+  name          String
+  phone         String?
+  role          Role        @default(COURIER)
+  active        Boolean     @default(true)
+  
+  // Güvenlik
+  refreshToken  String?     // JWT refresh token
+  lastLogin     DateTime?
+  failedAttempts Int        @default(0)
+  lockedUntil   DateTime?
+  
+  // Timestamps
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relations
+  locations     Location[]
+  sessions      Session[]
+  
+  @@index([email])
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  COURIER
+}
+
+// ========== KONUMLAR (GPS) ==========
+model Location {
+  id          String    @id @default(cuid())
+  userId      String
+  
+  // GPS Data
+  latitude    Float
+  longitude   Float
+  accuracy    Float?
+  speed       Float?
+  heading     Float?
+  altitude    Float?
+  
+  // Device Info
+  battery     Int?
+  deviceId    String?
+  
+  // Timestamp
+  timestamp   DateTime  @default(now())
+  
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([timestamp(sort: Desc)])
+  @@map("locations")
+}
+
+// ========== MESAİLER ==========
+model Session {
+  id              String    @id @default(cuid())
+  userId          String
+  
+  // Session Data
+  startTime       DateTime
+  endTime         DateTime?
+  totalDistance   Float     @default(0) // km
+  totalDuration   Int       @default(0) // dakika
+  deliveryCount   Int       @default(0) // teslimat sayısı
+  
+  // Status
+  status          SessionStatus @default(ACTIVE)
+  
+  // Break times (JSON array)
+  breaks          Json?     // [{start: "", end: "", duration: 15}]
+  
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, startTime(sort: Desc)])
+  @@index([status])
+  @@map("sessions")
+}
+
+enum SessionStatus {
+  ACTIVE
+  ON_BREAK
+  COMPLETED
+}
+
+// ========== AUDIT LOG (Güvenlik İçin) ==========
+model AuditLog {
+  id          String    @id @default(cuid())
+  
+  // Action Info
+  userId      String?
+  action      String    // "LOGIN", "LOGOUT", "UPDATE_LOCATION", etc.
+  details     Json?
+  ipAddress   String?
+  userAgent   String?
+  
+  // Timestamp
+  timestamp   DateTime  @default(now())
+  
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([action])
+  @@map("audit_logs")
+}
